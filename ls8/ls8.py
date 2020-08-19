@@ -7,5 +7,10 @@ from cpu import *
 
 cpu = CPU()
 
-cpu.load()
+try:
+    cpu.load(sys.argv[1])
+except:
+    raise FileNotFoundError
+
+
 cpu.run()
