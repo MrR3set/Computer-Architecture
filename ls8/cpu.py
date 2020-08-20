@@ -6,6 +6,8 @@ LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
 MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
 
 class CPU:
     """Main CPU class."""
@@ -14,7 +16,9 @@ class CPU:
         """Construct a new CPU."""
         self.pc = 0
         self.ram = [0]*256
-        self.reg = [0]*8
+        self.reg = [0]*8 
+        self.reg[7] = 0xF4 # SP
+        self.sp = 7
 
     def load(self, file):
         """Load a program into memory."""
@@ -75,8 +79,6 @@ class CPU:
         while running:
             # self.trace()
             IR = self.ram_read(self.pc) # insertion register
-            operand_a = self.ram_read(self.pc + 1)
-            operand_b = self.ram_read(self.pc + 2)
             if IR == HLT:
                 running=False
             elif IR == LDI:
@@ -89,6 +91,19 @@ class CPU:
                 reg_a =  self.ram_read(self.pc + 1)
                 self.alu("MUL",reg_a,reg_a+1)
                 self.pc += 3
+            elif IR == PUSH:
+                reg_a = self.ram_read(self.pc+1)
+                value = self.reg[reg_a]
+                self.reg[reg_a] -= 1
+                self.ram[self.reg[self.sp]]=value
+                self.pc += 2
+
+            elif IR == POP:
+                reg_a = self.ram_read(self.pc+1)
+                self.reg[reg_a] = self.ram[self.reg[self.sp]]
+                self.reg[self.sp] += 1
+                self.pc+=2
+
 
 
 
